@@ -36,10 +36,17 @@ print(len(y_train))
 
     
 #Ordinary Least Squares
-#clf = linear_model.LinearRegression()
-#clf.fit(x_train,y_train)
-#print(clf.coef_)
+x_train = np.array(x_train, dtype = 'float_')
+y_train = np.array(y_train, dtype = 'float_')
+clf = linear_model.LinearRegression()
+clf.fit(x_train,y_train)
+print(clf.coef_)
         
+    
+    
+    
+    
+    
     
 '''
 #Find w*
