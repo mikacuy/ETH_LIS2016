@@ -29,7 +29,7 @@ with open('train.csv', 'r') as csvfile:
     print("FINAL:")
     print(int(len(x_train)/15))
     x_train=np.reshape(x_train,(int(len(x_train)/15),15))
-    #print(x_train)
+    print(x_train)
     #print(y_train)
     #print(len(y_train))
 
@@ -42,4 +42,7 @@ w=d*1
 we wanna make R(w) = SIGMA(yi-Xw)^2 + Lambda*|w|^2
 so we do gradient descent on R(w)
 
+we then decide the initial w0, say, 1 for all entries.
+and we calculate the derivate at that point, 
+then w1 = w0 - step_size*derivative(w0), so on 
 '''
