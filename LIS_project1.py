@@ -37,9 +37,10 @@ print(len(y_train))
 
     
 #Ordinary Least Squares
-#clf = linear_model.LinearRegression()
-#clf.fit(x_train,y_train)
+clf = linear_model.LinearRegression()
+clf.fit(x_train,y_train)
 #print(clf.coef_)
+
         
     
 '''
