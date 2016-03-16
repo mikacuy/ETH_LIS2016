@@ -27,9 +27,9 @@ with open('train.csv', 'r') as csvfile:
             #    q=q+1
                 
     print("FINAL:")
-    #print(x_train)
     print(int(len(x_train)/15))
     x_train=np.reshape(x_train,(int(len(x_train)/15),15))
-    print(x_train)
-    print(y_train)
-    print(len(y_train))
+    #print(x_train)
+    #print(y_train)
+    #print(len(y_train))
+    
