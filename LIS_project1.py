@@ -32,4 +32,14 @@ with open('train.csv', 'r') as csvfile:
     #print(x_train)
     #print(y_train)
     #print(len(y_train))
-    
+
+'''
+
+x=n*d ; d = 15, xi=15
+y=n*1, yi = 1
+w=d*1
+
+we wanna make R(w) = SIGMA(yi-Xw)^2 + Lambda*|w|^2
+so we do gradient descent on R(w)
+
+'''
