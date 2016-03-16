@@ -81,8 +81,16 @@ y_test=x_test.dot(w.T)
 print("TEST SET Y values: with "+str(len(y_test))+" samples")
 print(y_test)    
     
-    
-    
+#Write to an output file
+with open('banana.csv', 'wt') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerow(('Id','y'))
+    line=[0,0.0]
+    for i in range(len(y_test)):
+        line[0]=900+i
+        line[1]=y_test[i]
+        #print(line)
+        writer.writerow(line)
     
     
 '''
