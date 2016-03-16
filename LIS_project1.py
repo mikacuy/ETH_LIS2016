@@ -46,3 +46,15 @@ print(len(y_train))
 w=np.array(np.zeros(15))
 print(w)
 '''
+
+'''
+
+x=n*d ; d = 15, xi=15
+y=n*1, yi = 1
+w=d*1
+
+we wanna make R(w) = SIGMA(yi-Xw)^2 + Lambda*|w|^2
+so we do gradient descent on R(w)
+
+'''
+
