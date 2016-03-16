@@ -34,7 +34,7 @@ print("TRAINING:")
 #print(int(len(x_train)/15))
 x_train=np.reshape(x_train,(int(len(x_train)/15),15))
 print("X (nxd) with "+str(len(x_train))+" samples: ")
-print(len(x_train))
+print(x_train)
 print()
 print("Y with "+str(len(y_train))+" samples: ")
 print(y_train)
@@ -73,10 +73,13 @@ with open('test.csv', 'r') as csvfile:
             #print(x_train)
             #    q=q+1
 x_test=np.reshape(x_test,(int(len(x_test)/15),15))
-print("TEST SET (kxd) with "+str(len(x_test))+" samples: ")
+print("TEST SET X (kxd) with "+str(len(x_test))+" samples: ")
 print(x_test)
 print()        
-    
+
+y_test=x_test.dot(w.T)
+print("TEST SET Y values: with "+str(len(y_test))+" samples")
+print(y_test)    
     
     
     
