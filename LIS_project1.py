@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import matplotlib.pylab as plt
+import pylab as p
 from sklearn import linear_model
 from sklearn.metrics import mean_squared_error
 import sys
@@ -8,6 +9,7 @@ import sys
 
 x_train=[]
 y_train=[]
+
 
 first_line=True
 #q=1
@@ -76,14 +78,33 @@ x_test=np.reshape(x_test,(int(len(x_test)/15),15))
 x_train = np.array(x_train, dtype = 'float_')
 y_train = np.array(y_train, dtype = 'float_')
 
+'''
+p.plot(x_train[:,14], y_train, 'ro')
+p.show()
+'''
+#x = np.linspace(0, 10, 100)
+#p.plot(x, np.sin(x), label='sine')
 #clf = linear_model.Ridge(alpha=0)
 clf = linear_model.LinearRegression()
 clf.fit(x_train,y_train)
+clf.score(x_train, y_train)
+
 RMSE = sys.float_info.max
-w=clf.coef_
+w=clf.coef_ 
 lam_best=0
 
 
+# training set partition
+num_partition = 10
+part_len = len(x_train)/num_partition
+x_partition=[]
+#for i in range(num_partition):
+#	x_partition[i] = np.vstack((x_partition[i], x_train[i*part_len:(i+1)*part_len]))
+	
+
+
+
+# cross validation
 '''
 for lam in np.arange(0,8.1,0.1):
 		
@@ -102,20 +123,21 @@ for lam in np.arange(0,8.1,0.1):
 #print("Coefficients of Regression: "+"length: "+str(len(w)))
 '''
 
-print("Coefficients of Ridge Regression: "+"length: "+str(len(w)))
 
+print("Coefficients of Regression: "+"length: "+str(len(w)))
 print(w)
 print()
 
 
-'''
-print("TEST SET X (kxd) with "+str(len(x_test))+" samples: ")
-print(x_test)
-print()        
-'''
-y_test=np.dot(x_test,w)
+
+
+
+# Render the prediction result of y in the test set
+y_test=clf.predict(x_test)
 print("TEST SET Y values: with "+str(len(y_test))+" samples")
 print(y_test)     
+
+
 
 
 #RMSE = mean_squared_error(y_train, np.dot(x_train,w))**0.5
