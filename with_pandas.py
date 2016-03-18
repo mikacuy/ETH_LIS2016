@@ -42,7 +42,7 @@ def write_output_file(y_test,name):
             #print(line)
             writer.writerow(line)
     
-def get_output(xxx,write,name):
+def get_output(xxx,write,name,degree):
     data = pandas.read_csv('test.csv', sep=',', na_values=".")
     print("In output file:")
     #print(data)
@@ -51,8 +51,10 @@ def get_output(xxx,write,name):
         if(key!="Id"):
             index.append(key)
     X_test=np.array(data[index])
+    poly=skpr.PolynomialFeatures(degree)
+    X_test_final=poly.fit_transform(X_test)
     #print(X_test)
-    Y_test=xxx.predict(X_test)
+    Y_test=xxx.predict(X_test_final)
     print(Y_test)
     
     if(write):
@@ -83,6 +85,7 @@ for feature_name, correlation in zip(index, correlations):
     print('{0:>10} {1:+.4f}'.format(feature_name, correlation))
 print('{0:>10} {1:+.4f}'.format('OUTPUT', correlations[-1]))
 
+'''
 #split data and test
 Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(X, Y, train_size=0.75)
 
@@ -104,9 +107,24 @@ print('score =', rms(Ytest, Ypred))
 scorefun = skmet.make_scorer(rms)
 scores = skcv.cross_val_score(regressor, X, Y, scoring=scorefun, cv=5)
 print('C-V score =', np.mean(scores), '+/-', np.std(scores))
+'''
 
+#higher order
+degree=10
+poly=skpr.PolynomialFeatures(degree)
+x_final=poly.fit_transform(X)
+Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(x_final, Y, train_size=0.75)
+#clf = sklin.LinearRegression()
+clf=sklin.Ridge(alpha=222.22)
+clf.fit(Xtrain,Ytrain)
+Ypred = clf.predict(Xtest)
+print('x13 deg',degree,' score =', rms(Ytest, Ypred))
+print()
+get_output(clf,True,"degree3.csv",degree)
+
+'''
 regressor_ridge = sklin.Ridge()
-param_grid = {'alpha': np.linspace(0, 100, 10)}
+param_grid = {'alpha': np.linspace(0, 1000, 10)}
 neg_scorefun = skmet.make_scorer(lambda x, y: -rms(x, y))  # Note the negative sign.
 grid_search = skgs.GridSearchCV(regressor_ridge, param_grid, scoring=neg_scorefun, cv=5)
 grid_search.fit(Xtrain, Ytrain)
@@ -114,3 +132,6 @@ grid_search.fit(Xtrain, Ytrain)
 best = grid_search.best_estimator_
 print(best)
 print('best score =', -grid_search.best_score_)
+#get_output(clf,True,"degree3.csv",degree)
+'''
+
