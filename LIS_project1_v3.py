@@ -150,8 +150,8 @@ X13train, X13test, Y13train, Y13test = skcv.train_test_split(x13, y_train, train
 #print('Shape of Ytrain:', Ytrain.shape)
 #print('Shape of Xtest:', Xtest.shape)
 #print('Shape of Ytest:', Ytest.shape)
-#regressor=sklin.LinearRegression()
-regressor = sklin.LassoLars()
+regressor=sklin.LinearRegression()
+#regressor = sklin.LassoLars()
 #clf=sklin.Ridge(alpha=0.0)
 #regressor=sklin.BayesianRidge(compute_score=True)
 #clf=sklin.TheilSenRegressor(random_state=42)
@@ -161,29 +161,37 @@ Y13pred = regressor.predict(X13test)
 print('x13 score =', rms(Y13test, Y13pred))
 #print('x13 score2 =', regressor.score(X13test,Y13pred))
 print()
-
-get_output_x13(regressor,True,"x13.csv")
+#plt.plot(x13,y_train,'ro')
+#plt.plot(X13train,Y13train,'ro')
+#plt.plot(X13test,Y13test,'b')
+#get_output_x13(regressor,True,"x13.csv")
 
 degree=1
 poly=skpr.PolynomialFeatures(degree)
 x_final=poly.fit_transform(x13)
 
-Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(x_final, y_train, train_size=0.9)
+Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(x13, y_train, train_size=0.5)
 clf = sklin.LinearRegression()
 clf.fit(Xtrain,Ytrain)
 Ypred = clf.predict(Xtest)
 print('x13 deg',degree,' score =', rms(Ytest, Ypred))
 #get_output_x13(regressor,True,"x13_.csv")
+x = np.linspace(0, 10, 100)
+plt.plot(x,clf.predict(x),'b-')
+plt.plot(Xtrain,Ytrain,'ro')
+#plt.plot(Xtest,Ytest,'bo')
+#plt.plot(Xtest,Ypred,'g-')
 
 regressor_ridge = sklin.Ridge()
 param_grid = {'alpha': np.linspace(0, 100, 10)}
 neg_scorefun = skmet.make_scorer(lambda x, y: -rms(x, y))  # Note the negative sign.
-grid_search = skgs.GridSearchCV(regressor_ridge, param_grid, scoring=neg_scorefun, cv=5)
+grid_search = skgs.GridSearchCV(regressor_ridge, param_grid, scoring='r2', cv=5)
 grid_search.fit(Xtrain, Ytrain)
 best = grid_search.best_estimator_
 print()
 print(best)
 print('best score =', -grid_search.best_score_)
+
 
 #get_output_x13(grid_search.best_estimator_,True,"x13_2.csv")
 
