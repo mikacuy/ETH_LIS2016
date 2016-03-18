@@ -110,17 +110,18 @@ print('C-V score =', np.mean(scores), '+/-', np.std(scores))
 '''
 
 #higher order
-degree=10
-poly=skpr.PolynomialFeatures(degree)
+degree=3
+poly=skpr.PolynomialFeatures(degree,include_bias=True)
 x_final=poly.fit_transform(X)
-Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(x_final, Y, train_size=0.75)
+Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(x_final, Y, train_size=0.9)
 #clf = sklin.LinearRegression()
-clf=sklin.Ridge(alpha=222.22)
+clf=sklin.BayesianRidge(compute_score=True)
+#clf=sklin.Ridge(alpha=222.22)
 clf.fit(Xtrain,Ytrain)
 Ypred = clf.predict(Xtest)
 print('x13 deg',degree,' score =', rms(Ytest, Ypred))
 print()
-get_output(clf,True,"degree3.csv",degree)
+#get_output(clf,True,"degree3_v3.csv",degree)
 
 '''
 regressor_ridge = sklin.Ridge()
