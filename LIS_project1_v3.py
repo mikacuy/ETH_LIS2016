@@ -142,7 +142,7 @@ print('{0:>10} {1:+.4f}'.format('OUTPUT', correlations[-1]))
 '''
 
 #fit x13
-#print(x13)
+print(x13)
 #print("len x13",len(x13))
 #print("len y",len(y_train))    
 X13train, X13test, Y13train, Y13test = skcv.train_test_split(x13, y_train, train_size=0.9)
@@ -170,15 +170,15 @@ degree=1
 poly=skpr.PolynomialFeatures(degree)
 x_final=poly.fit_transform(x13)
 
-Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(x13, y_train, train_size=0.5)
+Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(x_final, y_train, train_size=0.5)
 clf = sklin.LinearRegression()
 clf.fit(Xtrain,Ytrain)
 Ypred = clf.predict(Xtest)
 print('x13 deg',degree,' score =', rms(Ytest, Ypred))
 #get_output_x13(regressor,True,"x13_.csv")
 x = np.linspace(0, 10, 100)
-plt.plot(x,clf.predict(x),'b-')
-plt.plot(Xtrain,Ytrain,'ro')
+#plt.plot(x,clf.predict(x),'b-')
+#plt.plot(Xtrain,Ytrain,'ro')
 #plt.plot(Xtest,Ytest,'bo')
 #plt.plot(Xtest,Ypred,'g-')
 

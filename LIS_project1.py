@@ -1,119 +1,119 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Mar 18 16:02:47 2016
+
+@author: mikacuy
+"""
+
 import csv
 import numpy as np
+import pandas
+from pandas.tools import plotting
+from statsmodels.formula.api import ols
 import matplotlib.pylab as plt
-from sklearn import linear_model
 
-x_train=[]
-y_train=[]
+# Contains linear models, e.g., linear regression, ridge regression, LASSO, etc.
+import sklearn.linear_model as sklin
+# Allows us to create custom scoring functions
+import sklearn.metrics as skmet
+# Provides train-test split, cross-validation, etc.
+import sklearn.cross_validation as skcv
+# Provides grid search functionality
+import sklearn.grid_search as skgs
+# The dataset we will use
+from sklearn.datasets import load_boston
+# For data normalization
+import sklearn.preprocessing as skpr
 
-first_line=True
-#q=1
 
-#Open training data
-with open('train.csv', 'r') as csvfile:
-    reader = csv.reader(csvfile, delimiter='\n')
-    for row in reader:
-        if(first_line):
-            first_line=False
-            #print(row)
-            continue
-        else: 
-            #if(q<3):
-            entry=row[0].split(',')
-            x_rows=entry[2::]
-            #print(x_rows)
-            for i in range(len(x_rows)):
-                x_rows[i]=float(x_rows[i])  
-            x_train=np.hstack((x_train,x_rows))
-            y_train=np.hstack((y_train,entry[i]))
-            #print(entry)
-            #print(x_train)
-            #    q=q+1
-                
+def rms(gtruth, pred):
+    diff = gtruth - pred
+    return np.sqrt(np.mean(np.square(diff)))
 
-print("TRAINING:")
-#print(int(len(x_train)/15))
-x_train=np.reshape(x_train,(int(len(x_train)/15),15))
-print("X (nxd) with "+str(len(x_train))+" samples: ")
-print(x_train)
+#Function to write to a file
+def write_output_file(y_test,name):
+    #Write to an output file
+    with open(name, 'wt') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(('Id','y'))
+        line=[0,0.0]
+        for i in range(len(y_test)):
+            line[0]=900+i
+            line[1]=y_test[i]
+            writer.writerow(line)
+        print("File ",name," written")
+
+#Function to open test set and generate predicted output    
+def get_output(xxx,write,name,degree):
+    data = pandas.read_csv('test.csv', sep=',', na_values=".")
+    index=[]
+    for key in data.keys():
+        if(key!="Id"):
+            index.append(key)
+    X_test=np.array(data[index])
+    poly=skpr.PolynomialFeatures(degree)
+    X_test_final=poly.fit_transform(X_test)
+    Y_test=xxx.predict(X_test_final)
+    print(Y_test)
+    
+    if(write):
+        write_output_file(Y_test,name)
+
+#Open training file and store in pandas DataFrame
+data = pandas.read_csv('train.csv', sep=',', na_values=".")
+print(data.keys())
+
+index=[]
+for key in data.keys():
+    if(key!="Id" and key!="y"):
+        index.append(key)
+
+#Construct matrix X of independent variables
+X=np.array(data[index])
+
+#Vector Y
+Y=np.array(data['y'])
+
+#Display correlation among independent and dependent variables
+XYtrain = np.vstack((X.T, np.atleast_2d(Y)))
+correlations = np.corrcoef(XYtrain)[-1, :]
+print('features', len(index), 'correlations', len(correlations))
+for feature_name, correlation in zip(index, correlations):
+    print('{0:>10} {1:+.4f}'.format(feature_name, correlation))
+print('{0:>10} {1:+.4f}'.format('OUTPUT', correlations[-1]))
+
+#Variable to set the degree
+degree=3
+
+#Construct matrix up to degree
+poly=skpr.PolynomialFeatures(degree,include_bias=True)
+x_final=poly.fit_transform(X)
+
+#Split data into training and test (change train_size)
+Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(x_final, Y, train_size=0.95)
+#clf = sklin.LinearRegression()
+#clf=sklin.BayesianRidge(compute_score=True)
+clf=sklin.Ridge(alpha=222.22)
+clf.fit(Xtrain,Ytrain)
+Ypred = clf.predict(Xtest)
+print('X deg',degree,' score =', rms(Ytest, Ypred))
 print()
-print("Y with "+str(len(y_train))+" samples: ")
-print(y_train)
-print()
 
-    
-#Ordinary Least Squares
+#Get test data result
+output_to_file=False
+get_output(clf,output_to_file,"degree3_v3.csv",degree)
 
-x_train = np.array(x_train, dtype = 'float_')
-y_train = np.array(y_train, dtype = 'float_')
-clf = linear_model.LinearRegression()
-clf.fit(x_train,y_train)
-
-w=clf.coef_
-print("Coefficients of Regression: "+"length: "+str(len(w)))
-print(w)
-print()
-
-#Open test data
-first_line=True
-x_test=[]
-with open('test.csv', 'r') as csvfile:
-    reader = csv.reader(csvfile, delimiter='\n')
-    for row in reader:
-        if(first_line):
-            first_line=False
-            continue
-        else: 
-            #if(q<3):
-            entry=row[0].split(',')
-            x_rows=entry[1::]
-            #print(x_rows)
-            for i in range(len(x_rows)):
-                x_rows[i]=float(x_rows[i])  
-            x_test=np.hstack((x_test,x_rows))
-            #print(entry)
-            #print(x_train)
-            #    q=q+1
-x_test=np.reshape(x_test,(int(len(x_test)/15),15))
-print("TEST SET X (kxd) with "+str(len(x_test))+" samples: ")
-print(x_test)
-print()        
-
-y_test=x_test.dot(w.T)
-print("TEST SET Y values: with "+str(len(y_test))+" samples")
-print(y_test)    
-    
-#Write to an output file
-with open('banana.csv', 'wt') as csvfile:
-    writer = csv.writer(csvfile)
-    writer.writerow(('Id','y'))
-    line=[0,0.0]
-    for i in range(len(y_test)):
-        line[0]=900+i
-        line[1]=y_test[i]
-        #print(line)
-        writer.writerow(line)
-    
-
-    
+#To compare performance of different Ridge alphas
 '''
-#Find w*
-w=np.array(np.zeros(15))
-print(w)
-'''
+regressor_ridge = sklin.Ridge()
+param_grid = {'alpha': np.linspace(0, 1000, 10)}
+neg_scorefun = skmet.make_scorer(lambda x, y: -rms(x, y))  # Note the negative sign.
+grid_search = skgs.GridSearchCV(regressor_ridge, param_grid, scoring=neg_scorefun, cv=5)
+grid_search.fit(Xtrain, Ytrain)
 
-
-'''
-
-x=n*d ; d = 15, xi=15
-y=n*1, yi = 1
-w=d*1
-
-we wanna make R(w) = SIGMA(yi-Xw)^2 + Lambda*|w|^2
-so we do gradient descent on R(w)
-
-we then decide the initial w0, say, 1 for all entries.
-and we calculate the derivate at that point, 
-then w1 = w0 - step_size*derivative(w0), so on 
+best = grid_search.best_estimator_
+print(best)
+print('best score =', -grid_search.best_score_)
+#get_output(clf,True,"degree3.csv",degree)
 '''
 
