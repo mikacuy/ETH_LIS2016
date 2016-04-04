@@ -53,6 +53,7 @@ def get_output(xxx,write,name,degree):
     X_test=np.array(data[index])
     poly=skpr.PolynomialFeatures(degree)
     X_test_final=poly.fit_transform(X_test)
+    X_test_final = np.array(X_test_final, dtype = 'float128')
     Y_test=xxx.predict(X_test_final)
     print(Y_test)
     
@@ -100,8 +101,8 @@ print('X deg',degree,' score =', rms(Ytest, Ypred))
 print()
 
 #Get test data result
-output_to_file=False
-get_output(clf,output_to_file,"degree3_v3.csv",degree)
+output_to_file=True
+get_output(clf,output_to_file,"degree3_v4.csv",degree)
 
 #To compare performance of different Ridge alphas
 '''
