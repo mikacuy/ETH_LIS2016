@@ -16,6 +16,13 @@ from sklearn import neighbors, datasets
 def rms(gtruth, pred):
     diff = gtruth - pred
     return np.sqrt(np.mean(np.square(diff)))
+    
+def get_accuracy(test,pred):
+    correct=0
+    for i in range(len(test)):
+        if test[i]==pred[i]:
+            correct+=1
+    return float(correct)/float(len(test))
 
 def write_output_file(y_test,name):
     #Write to an output file
@@ -60,22 +67,22 @@ X=np.array(data[index])
 Y=np.array(data['y'])
 
 #Split data into training and test (change train_size)
-Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(X, Y, train_size=0.66)
+Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(X, Y, train_size=0.9)
 
 #try nearest neighbor approach
 
 #################EDIT K HERE####################
-n_neighbors = 5 #k
+n_neighbors = 10 #k
 ################################################
 
 clf = neighbors.KNeighborsClassifier(n_neighbors, 'uniform')
 clf.fit(Xtrain,Ytrain)
 Ypred=clf.predict(Xtest)
-print('score =', rms(Ytest, Ypred))
+print('score =', get_accuracy(Ytest, Ypred))
 print()
 
-output_to_file=True
-get_output(clf,output_to_file,"project2_kNN_5.csv")
+#output_to_file=True
+#get_output(clf,output_to_file,"project2_kNN_5.csv")
 
 
 '''
