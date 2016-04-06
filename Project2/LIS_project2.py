@@ -75,7 +75,7 @@ Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(X, Y, train_size=0.9)
 
 #svm with linear/polynomial/gaussian kernel
 #for kernel in ('linear', 'poly', 'rbf'):
-clf = SVC(kernel='poly',gamma=2)
+clf = SVC(kernel='poly',gamma=2)   # kernel can be 'rbf','poly' or 'linear'
 clf.fit(Xtrain,Ytrain)
 Ypred=clf.predict(Xtest)
 print('score =', get_accuracy(Ytest, Ypred))
