@@ -12,6 +12,9 @@ import pandas
 import sklearn.cross_validation as skcv
 import sklearn.preprocessing as skpr
 from sklearn import neighbors, datasets
+from sklearn.multiclass import OneVsRestClassifier,OneVsOneClassifier
+from sklearn.svm import SVC
+from sklearn.feature_selection import RFE
 
 def rms(gtruth, pred):
     diff = gtruth - pred
@@ -58,7 +61,7 @@ print(data.keys())
 
 #create array X for training data
 index=[]
-for key in data.keys():
+for key in data.keys():	
     if(key!="Id" and key!="y"):
         index.append(key)        
 X=np.array(data[index])
@@ -69,6 +72,19 @@ Y=np.array(data['y'])
 #Split data into training and test (change train_size)
 Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(X, Y, train_size=0.9)
 
+
+#svm with linear/polynomial/gaussian kernel
+#for kernel in ('linear', 'poly', 'rbf'):
+clf = SVC(kernel='poly',gamma=2)
+clf.fit(Xtrain,Ytrain)
+Ypred=clf.predict(Xtest)
+print('score =', get_accuracy(Ytest, Ypred))
+print()
+#output_to_file=True
+#get_output(clf,output_to_file,"project2_svm_poly.csv")
+
+
+'''
 #try nearest neighbor approach
 
 #################EDIT K HERE####################
@@ -83,6 +99,8 @@ print()
 
 #output_to_file=True
 #get_output(clf,output_to_file,"project2_kNN_5.csv")
+'''
+
 
 
 '''
