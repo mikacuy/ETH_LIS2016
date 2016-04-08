@@ -47,16 +47,18 @@ def write_output_file(y_test,name):
 def crossValidation(estimator,xtrain, ytrain, k_fold):
 	kf_total = skcv.KFold(len(xtrain), n_folds=k_fold)
 	score=0	
-	for train_index, test_index in kf_total:
-		
+	i=0
+	for train_index, test_index in kf_total:		
+		i+=1	
 		estimator.fit(xtrain[train_index],ytrain[train_index])
 		ypredict=estimator.predict(xtrain[test_index])
 		#print('score =', get_accuracy(Ytest, Ypred))
 		score+=get_accuracy(ytrain[test_index], ypredict)		
 		
-	score/=10
+	score/=k_fold
 	print('score=',score)
 	print()
+	print(i)
 	
 
         
@@ -99,8 +101,10 @@ Y=np.array(data['y'])
 #####################################################################
 ############# Change the estimator here #############################
 #####################################################################
-clf = neighbors.KNeighborsClassifier(5, 'uniform')	
-#clf = SVC(kernel='poly',gamma=2)
+
+#clf = neighbors.KNeighborsClassifier(5, 'uniform')	
+clf = SVC(kernel='rbf',degree = 2,gamma=0.002) # 0.002 is so far the best gamma for the gaussian kernel
+
 #####################################################################
 #####################################################################
 
@@ -108,7 +112,7 @@ crossValidation(clf,X,Y,k_fold=10)  #  do cross validation on k-folds and genera
 clf.fit(X,Y) #  do training on the entire set instead of 0.9 of the set
 Y_predict = clf.predict(X)
 output_to_file=True
-get_output(clf,output_to_file,"project2_kNN_5.csv")
+get_output(clf,output_to_file,"project2_gaussian_gamma_0_002.csv")
 
 '''
 #svm with linear/polynomial/gaussian kernel
