@@ -104,10 +104,8 @@ clf = neighbors.KNeighborsClassifier(5, 'uniform')
 #####################################################################
 #####################################################################
 
-
-# We do a cross validation on k-folds and generate a validation score
-crossValidation(clf,X,Y,k_fold=10)
-clf.fit(X,Y) # we do training on the entire set
+crossValidation(clf,X,Y,k_fold=10)  #  do cross validation on k-folds and generate a validation score
+clf.fit(X,Y) #  do training on the entire set instead of 0.9 of the set
 Y_predict = clf.predict(X)
 output_to_file=True
 get_output(clf,output_to_file,"project2_kNN_5.csv")
