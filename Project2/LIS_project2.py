@@ -10,6 +10,7 @@ import numpy as np
 import pandas
 
 import sklearn.cross_validation as skcv
+from sklearn.cross_validation import KFold
 import sklearn.preprocessing as skpr
 from sklearn import neighbors, datasets
 from sklearn.multiclass import OneVsRestClassifier,OneVsOneClassifier
@@ -38,6 +39,26 @@ def write_output_file(y_test,name):
             line[1]=y_test[i]
             writer.writerow(line)
         print("File ",name," written")
+
+
+# Do k-fold cross validation on the entire training set
+# and generate a score which is the average of the k-fold
+# socres
+def crossValidation(estimator,xtrain, ytrain, k_fold):
+	kf_total = skcv.KFold(len(xtrain), n_folds=k_fold)
+	score=0	
+	for train_index, test_index in kf_total:
+		
+		estimator.fit(xtrain[train_index],ytrain[train_index])
+		ypredict=estimator.predict(xtrain[test_index])
+		#print('score =', get_accuracy(Ytest, Ypred))
+		score+=get_accuracy(ytrain[test_index], ypredict)		
+		
+	score/=10
+	print('score=',score)
+	print()
+	
+
         
 #Function to open test set and generate predicted output    
 def get_output(xxx,write,name):
@@ -56,6 +77,8 @@ def get_output(xxx,write,name):
     if(write):
         write_output_file(Y_test,name)
 
+
+######################### MAIN #############################
 data = pandas.read_csv('train2.csv', sep=',', na_values=".")
 print(data.keys())
 
@@ -70,9 +93,26 @@ X=np.array(data[index])
 Y=np.array(data['y'])
 
 #Split data into training and test (change train_size)
-Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(X, Y, train_size=0.9)
+#Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(X, Y, train_size=0.9)
 
 
+#####################################################################
+############# Change the estimator here #############################
+#####################################################################
+clf = neighbors.KNeighborsClassifier(5, 'uniform')	
+#clf = SVC(kernel='poly',gamma=2)
+#####################################################################
+#####################################################################
+
+
+# We do a cross validation on k-folds and generate a validation score
+crossValidation(clf,X,Y,k_fold=10)
+clf.fit(X,Y) # we do training on the entire set
+Y_predict = clf.predict(X)
+output_to_file=True
+get_output(clf,output_to_file,"project2_kNN_5.csv")
+
+'''
 #svm with linear/polynomial/gaussian kernel
 #for kernel in ('linear', 'poly', 'rbf'):
 clf = SVC(kernel='poly',gamma=2)   # kernel can be 'rbf','poly' or 'linear'
@@ -82,7 +122,24 @@ print('score =', get_accuracy(Ytest, Ypred))
 print()
 #output_to_file=True
 #get_output(clf,output_to_file,"project2_svm_poly.csv")
+'''
 
+'''
+#try nearest neighbor approach
+
+#################EDIT K HERE####################
+n_neighbors = 5 #k
+################################################
+
+clf = neighbors.KNeighborsClassifier(n_neighbors, 'uniform')
+clf.fit(X,Y)
+Ypred=clf.predict(Xtest)
+#print('score =', get_accuracy(Ytest, Ypred))
+print()
+
+output_to_file=True
+get_output(clf,output_to_file,"project2_kNN_5.csv")
+'''
 
 '''
 #try nearest neighbor approach
