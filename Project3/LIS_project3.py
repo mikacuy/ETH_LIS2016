@@ -3,19 +3,18 @@
 Created on Sat Apr  2 22:27:54 2016
 
 @author: mikacuy
+@reader: wenr:)
 """
 
 import csv
+import tensorflow as tf
 import numpy as np
 import pandas
 
 import sklearn.cross_validation as skcv
 from sklearn.cross_validation import KFold
 import sklearn.preprocessing as skpr
-from sklearn import neighbors, datasets
-from sklearn.multiclass import OneVsRestClassifier,OneVsOneClassifier
-from sklearn.svm import SVC
-from sklearn.feature_selection import RFE
+#from sklearn.neural_network import MLPClassifier
 
 def rms(gtruth, pred):
     diff = gtruth - pred
@@ -35,7 +34,7 @@ def write_output_file(y_test,name):
         writer.writerow(('Id','y'))
         line=[0,0.0]
         for i in range(len(y_test)):
-            line[0]=1000+i
+            line[0]=45324+i
             line[1]=y_test[i]
             writer.writerow(line)
         print("File ",name," written")
@@ -64,7 +63,7 @@ def crossValidation(estimator,xtrain, ytrain, k_fold):
         
 #Function to open test set and generate predicted output    
 def get_output(estimator,write,name):
-    data = pandas.read_csv('test2.csv', sep=',', na_values=".")
+    data = pandas.read_hdf('test.h5', "test")
     index=[]
     for key in data.keys():
         if(key!="Id"):
@@ -81,69 +80,91 @@ def get_output(estimator,write,name):
 
 
 ######################### MAIN #############################
-data = pandas.read_csv('train2.csv', sep=',', na_values=".")
-print(data.keys())
+if __name__ == '__main__':
 
-#create array X for training data
-index=[]
-for key in data.keys():	
-    if(key!="Id" and key!="y"):
-        index.append(key)        
-X=np.array(data[index])
+	train = pandas.read_hdf("train.h5", "train")
+	#test = pandas.read_hdf("test.h5", "test")
+	
 
-#create array Y in training data
-Y=np.array(data['y'])
+	#create array x_train for training data
+	index=[]
+	for key in train.keys():	
+		if(key!="Id" and key!="y"):
+		    index.append(key)        
+	x_train=np.array(train[index])
 
-#Split data into training and test (change train_size)
-#Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(X, Y, train_size=0.9)
+	#create array y_train in training data
+	y_train=np.array(train['y'])
+	
+	
+	
+	def zero():
+		return np.array([[1, 0, 0, 0, 0]])
+
+	def one():
+		return np.array([[0, 1, 0, 0, 0]])
+
+	def two():
+		return np.array([[0, 0, 1, 0, 0]])
+	
+	def three():
+		return np.array([[0, 0, 0, 1, 0]])
+
+	def four():
+		return np.array([[0, 0, 0, 0, 1]])
+
+	# map the inputs to the function blocks
+	options = {
+		0 : zero,
+    	1 : one,
+    	2 : two,
+    	3 : three,
+    	4 : four,
+	}
+	
+	#change y_train into one-hot code
+	y_train_oneHot = np.array(options[y_train[0]]())
+	for i in range(1, len(y_train)):		
+		y_train_oneHot = np.append(y_train_oneHot,options[y_train[i]](), axis=0)
+		
+		
+	#######start the tensorflow manipulation#########
+	x = tf.placeholder(tf.float32, [None, 100])
+	W = tf.Variable(tf.zeros([100, 5]))
+	b = tf.Variable(tf.zeros([5]))
+	y = tf.nn.softmax(tf.matmul(x, W) + b)
+
+	y_ = tf.placeholder(tf.float32, [None, 5])
+	cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
+	train_step = tf.train.GradientDescentOptimizer(0.1).minimize(cross_entropy)
+	
+	init = tf.initialize_all_variables()
+
+	sess = tf.Session()
+	sess.run(init)
+	
+	
+	len_data = len(x_train)
+
+	for i in range(1000):
+		index2 = np.random.choice(len_data, 100)
+		xs_batch = np.array(x_train[index2])
+		ys_batch = np.array(y_train_oneHot[index2])
+		sess.run(train_step, feed_dict={x: xs_batch, y_: ys_batch})
+
+	
 
 
-#####################################################################
-############# Change the estimator here #############################
-#####################################################################
-
-#clf = neighbors.KNeighborsClassifier(5, 'uniform')	
-clf = SVC(kernel='rbf',degree = 2,gamma=0.002) # kernel can be 'rbf','poly' or 'linear' 
-											   # 0.002 is so far the best gamma for the gaussian kernel
-
-#####################################################################
-#####################################################################
-
-crossValidation(clf,X,Y,k_fold=10)  #  do cross validation on k-folds and generate a validation score
-clf.fit(X,Y) #  do training on the entire set instead of 0.9 of the set
-Y_predict = clf.predict(X)
-output_to_file=True
-get_output(clf,output_to_file,"project2_gaussian_gamma_0_002.csv")
-
-
+	#get_output(mlp,true,"project3.csv")
 '''
-#try nearest neighbor approach
+	#Split data into training and test (change train_size)
+	#Xtrain, Xtest, Ytrain, Ytest = skcv.train_test_split(X, Y, train_size=0.9)
 
-#################EDIT K HERE####################
-n_neighbors = 5 #k
-################################################
-
-clf = neighbors.KNeighborsClassifier(n_neighbors, 'uniform')
-clf.fit(X,Y)
-Ypred=clf.predict(Xtest)
-#print('score =', get_accuracy(Ytest, Ypred))
-print()
-
-output_to_file=True
-get_output(clf,output_to_file,"project2_kNN_5.csv")
-'''
-
-
-'''
-regressor_ridge = sklin.Ridge()
-param_grid = {'alpha': np.linspace(0, 1000, 10)}
-neg_scorefun = skmet.make_scorer(lambda x, y: -rms(x, y))  # Note the negative sign.
-grid_search = skgs.GridSearchCV(regressor_ridge, param_grid, scoring=neg_scorefun, cv=5)
-grid_search.fit(Xtrain, Ytrain)
-
-best = grid_search.best_estimator_
-print(best)
-print('best score =', -grid_search.best_score_)
-#get_output(clf,True,"degree3.csv",degree)
+	
+	crossValidation(clf,X,Y,k_fold=10)  #  do cross validation on k-folds and generate a validation score
+	
+	Y_predict = clf.predict(X)
+	output_to_file=True
+	get_output(clf,output_to_file,"project3.csv")
 '''
 
