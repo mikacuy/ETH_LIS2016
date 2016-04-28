@@ -83,7 +83,7 @@ def get_output(estimator,write,name):
 if __name__ == '__main__':
 
 	train = pandas.read_hdf("train.h5", "train")
-	#test = pandas.read_hdf("test.h5", "test")
+	test = pandas.read_hdf("test.h5", "test")
 	
 
 	#create array x_train for training data
@@ -96,6 +96,12 @@ if __name__ == '__main__':
 	#create array y_train in training data
 	y_train=np.array(train['y'])
 	
+	#create array x_test in test set
+	index_test = []
+	for key in test.keys():	
+		if(key!="Id" and key!="y"):
+		    index_test.append(key)        
+	x_test=np.array(test[index_test])
 	
 	
 	def zero():
@@ -147,14 +153,18 @@ if __name__ == '__main__':
 	len_data = len(x_train)
 
 	for i in range(1000):
-		index2 = np.random.choice(len_data, 100)
+		index2 = np.random.choice(len_data, 100)  # using stochastic batches of the training set to train the neural network
 		xs_batch = np.array(x_train[index2])
 		ys_batch = np.array(y_train_oneHot[index2])
 		sess.run(train_step, feed_dict={x: xs_batch, y_: ys_batch})
 
+	#correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
+	#accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 	
-
-
+	y_predict = sess.run(tf.argmax(y, 1), feed_dict={x: x_test})
+	#print classification
+	
+	write_output_file(y_predict,"project3.csv")
 	#get_output(mlp,true,"project3.csv")
 '''
 	#Split data into training and test (change train_size)
